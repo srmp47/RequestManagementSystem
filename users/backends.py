@@ -7,7 +7,6 @@ User = get_user_model()
 class MultiFieldModelBackend(ModelBackend):
     def authenticate(self, request, username=None, password=None, **kwargs):
         try:
-            # جستجو در نام کاربری، ایمیل یا شماره تماس
             user = User.objects.get(
                 Q(username__iexact=username) |
                 Q(email__iexact=username) |
@@ -16,7 +15,6 @@ class MultiFieldModelBackend(ModelBackend):
         except User.DoesNotExist:
             return None
 
-        # بررسی صحیح بودن پسورد
         if user.check_password(password) and self.user_can_authenticate(user):
             return user
         return None

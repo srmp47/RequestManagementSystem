@@ -10,4 +10,4 @@ class RequestSerializer(serializers.ModelSerializer):
     class Meta:
         model = Advertisement
         fields = '__all__'
-        read_only_fields = ['date', 'status']  # Status usually changed by admins
+        read_only_fields = ['date', 'status','user']  # Status usually changed by admins

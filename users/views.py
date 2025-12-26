@@ -45,3 +45,11 @@ class LoginView(APIView):
             return Response({"detail": "input data is not valid"}, status=status.HTTP_401_UNAUTHORIZED)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+from rest_framework import generics, permissions
+
+class UserProfileView(generics.RetrieveUpdateDestroyAPIView):
+    serializer_class = UserSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_object(self):
+        return self.request.user
