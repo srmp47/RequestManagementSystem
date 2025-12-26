@@ -1,6 +1,6 @@
 from django.db import models
 
-from requests.models import Request
+from advertisements.models import Advertisement
 
 
 class Ticket(models.Model):
@@ -10,5 +10,5 @@ class Ticket(models.Model):
         REJECTED = "Rejected", "Rejected"
     message = models.TextField()
     answer = models.TextField()
-    request = models.ForeignKey(Request, on_delete=models.CASCADE, null=True)
+    request = models.ForeignKey(Advertisement, on_delete=models.CASCADE, null=True)
     status = models.CharField(max_length=10, choices=Status.choices, default=Status.PENDING)

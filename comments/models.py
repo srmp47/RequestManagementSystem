@@ -1,5 +1,5 @@
 from django.db import models
-from requests.models import Request
+from advertisements.models import Advertisement
 from users.models import User
 
 class Comment(models.Model):
@@ -17,5 +17,5 @@ class Comment(models.Model):
         verbose_name='Rating'
     )
     content = models.TextField()
-    request = models.ForeignKey(Request, on_delete=models.CASCADE)
+    request = models.ForeignKey(Advertisement, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
