@@ -1,10 +1,21 @@
-from rest_framework.permissions import AllowAny
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.authtoken.models import Token
 from django.contrib.auth import authenticate
 from .serializers import UserSerializer, LoginSerializer
+from rest_framework.permissions import AllowAny
+from .serializers import ContractorProfileSerializer
+from rest_framework import  filters
+from django_filters.rest_framework import DjangoFilterBackend
+from django.db.models import Avg, Count
+from .filters import ContractorFilter
+from rest_framework import  permissions
+from rest_framework import generics
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from .models import User
+from .serializers import UserProfileSerializer
+from drf_spectacular.utils import extend_schema
 
 
 class RegisterView(APIView):
@@ -45,7 +56,6 @@ class LoginView(APIView):
             return Response({"detail": "input data is not valid"}, status=status.HTTP_401_UNAUTHORIZED)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-from rest_framework import generics, permissions
 
 class UserProfileView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = UserSerializer
@@ -53,3 +63,33 @@ class UserProfileView(generics.RetrieveUpdateDestroyAPIView):
 
     def get_object(self):
         return self.request.user
+
+
+class ContractorProfileView(generics.RetrieveAPIView):
+    queryset = User.objects.all()
+    serializer_class = ContractorProfileSerializer
+    permission_classes = [AllowAny]
+
+
+
+@extend_schema(tags=['Profiles'])
+class PublicProfileView(generics.RetrieveAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserProfileSerializer
+    permission_classes = [IsAuthenticatedOrReadOnly]
+
+@extend_schema(tags=['Contractors'])
+class ContractorListView(generics.ListAPIView):
+    serializer_class = ContractorProfileSerializer
+    filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
+    filterset_class = ContractorFilter
+
+    ordering_fields = ['avg_rating', 'rev_count']
+
+    ordering = ['-avg_rating']
+
+    def get_queryset(self):
+        return User.objects.annotate(
+            avg_rating=Avg('reviews_received__rating'),
+            rev_count=Count('reviews_received')
+        ).filter(rev_count__gt=0)
